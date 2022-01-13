@@ -1,6 +1,15 @@
+# This class handles sprite sheets
+# https://www.pygame.org/wiki/Spritesheet
+# I've added some code to fail if the file wasn't found..
+# Note: When calling images_at the rect is the format:
+# (x, y, x + offset, y + offset)
+
 import pygame
 from settings import *
+
+
 pygame.init()
+
 
 class SpriteSheet:
 
@@ -33,6 +42,12 @@ class SpriteSheet:
         tups = [(rect[0]+rect[2]*x, rect[1], rect[2], rect[3])
                 for x in range(image_count)]
         return self.images_at(tups, colorkey)
+
+    def scale_images(self, image_list, x_size, y_size):
+        for image in image_list:
+            pygame.transform.scale(image, (x_size, y_size))
+
+        return image_list
 
     def load_grid_images(self, num_rows, num_cols, x_margin=0, x_padding=0,
             y_margin=0, y_padding=0, width=None, height=None, colorkey = None):
@@ -70,3 +85,28 @@ class SpriteSheet:
                 sprite_rects.append(sprite_rect)
 
         return self.images_at(sprite_rects, colorkey)
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+
+        x_margin = 24
+        y_margin = 315
+        x_pad = 1
+        y_pad = 0
+        width = 50
+        height = 50
+        hero = SpriteSheet("images/OpenGunnerHeroVer2.png")
+        self.run_rt_list = hero.load_grid_images(1, 8, x_margin, x_pad, y_margin, y_pad, width, height, -1)
+        # self.run_rt_list = hero.scale_images(self.run_rt_list, TILE_SIZE, TILE_SIZE)
+        self.run_lft_list = [pygame.transform.flip(player, True, False) for player in self.run_rt_list]
+        self.image = self.run_rt_list[0]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def update(self, display):
+        display.blit(self.image, (self.rect.x, self.rect.y))
+
+class Walls:
+    def __init__(self, x, y):
+        pass
