@@ -2,26 +2,47 @@ import pygame as pg
 from settings import *
 import sprites
 
+
 pg.init()
 
-screen = pg.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
+
+def draw_layout():
+    for i, row in enumerate(LAYOUT):
+        for j, col in enumerate(row):
+            x_val = j * TILE_SIZE
+            y_val = i * TILE_SIZE
+
+            if col == "1":
+                SCREEN.blit(BROWN_BLOCK, (x_val, y_val))
+            elif col == "2":
+                SCREEN.blit(YELLOW_BRICK, (x_val, y_val))
+            elif col == "3":
+                SCREEN.blit(BROWN_BOX, (x_val, y_val))
+            elif col == "4":
+                SCREEN.blit(SPIKES, (x_val, y_val))
+            elif col == "5":
+                SCREEN.blit(DOORS[0], (x_val, y_val))
+            elif col == "6":
+                SCREEN.blit(YELLOW_BRICK, (x_val, y_val))
+            elif col == "7":
+                SCREEN.blit(PLATFORM, (x_val, y_val))
+            elif col == "8":
+                SCREEN.blit(LADDER, (x_val, y_val))
+            elif col == "9":
+                SCREEN.blit(KEY, (x_val, y_val))
+            elif col == "a":
+                pass
+
+
 pg.display.set_caption("New Game")
 
 # bg_image = pg.image.load("images/Full-background.png")
 # bg_image = pg.transform.scale(bg_image, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
-hero = sprites.SpriteSheet("images/OpenGunnerHeroVer2.png")
-player = sprites.Player(100, DISPLAY_HEIGHT-2*TILE_SIZE)
+# hero = sprites.SpriteSheet("images/OpenGunnerHeroVer2.png")
+# player = sprites.Player(100, DISPLAY_HEIGHT-2*TILE_SIZE)
 
-tile_sheet = sprites.SpriteSheet("images/tile-set.png")
-brick_block = tile_sheet.image_at((96, 48, 16, 16))
-brick_block = pg.transform.scale(brick_block, (TILE_SIZE, TILE_SIZE))
-
-
-# ace_hearts = hero.image_at((8, 2, 44, 59))
-
-# print(ace_hearts)
-
+layout = sprites.Layout(LAYOUT, TILE_SIZE)
 clock = pg.time.Clock()
 
 running = True
@@ -31,18 +52,12 @@ while running:
 
         if event.type == pg.QUIT:
             running = False
-    screen.fill(SKY_BLUE)
+    SCREEN.fill(GREY)
 
-    # screen.blit(bg_image, (0, 0))
-    for i, row in enumerate(LAYOUT):
-        for j, col in enumerate(row):
-            x_val = j * TILE_SIZE
-            y_val = i * TILE_SIZE
-
-            if col == "1":
-                screen.blit(brick_block, (x_val, y_val))
-    player.update(screen)
-
+    # screen.blit(brick_block, (100, 100))
+    # player.update(screen)
+    # draw_layout()
+    layout.draw(SCREEN)
     # for i in range(1, DISPLAY_WIDTH // TILE_SIZE):
     #     pg.draw.rect(screen, WHITE, (i*TILE_SIZE, 0, 3, DISPLAY_HEIGHT))
     #
@@ -50,8 +65,6 @@ while running:
     #     pg.draw.rect(screen, WHITE, (0, i*TILE_SIZE, DISPLAY_WIDTH, 3))
 
     pg.display.flip()
-
-
 
     clock.tick(FPS)
 
