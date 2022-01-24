@@ -72,32 +72,117 @@ class SpriteSheet:
         return self.images_at(sprite_rects, color_key)
 
 
-class Player(pg.sprite.Sprite):
-    def __init__(self, x, y):
-        pg.sprite.Sprite.__init__(self)
-        self.run_rt_list, self.run_lft_list = self.load_images()
-        self.image = self.run_rt_list[0]
+class Player:
+    def __init__(self, x, y, tile_size, tiles):
+        self.tile_size = tile_size
+        self.tiles = tiles
+        self.stand_rt = None
+        self.stand_lft = None
+        self.run_rt_list = []
+        self.run_lft_list = None
+        self.load_images()
+        self.image = self.stand_rt
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.image_delay = 100
+        self.last = pg.time.get_ticks()
+        self.current_frame = 0
+        self.right = True
+        self.left = False
+        self.jumping = False
+        self.velo_y = 0
 
     def update(self, display):
-        display.blit(self.image, (self.rect.x, self.rect.y))
+        # create delta's
+        dx = 0
+        dy = 0
+
+        # get key presses and update delta's
+        keys = pg.key.get_pressed()
+        if keys[pg.K_RIGHT]:
+            self.left = False
+            self.right = True
+            dx = 5
+            now = pg.time.get_ticks()
+            if now - self.last >= self.image_delay:
+                self.last = now
+                self.current_frame = (self.current_frame+1) % len(self.run_rt_list)
+                self.image = self.run_rt_list[self.current_frame]
+        elif keys[pg.K_LEFT]:
+            self.left = True
+            self.right = False
+            dx = -5
+            now = pg.time.get_ticks()
+            if now - self.last >= self.image_delay:
+                self.last = now
+                self.current_frame = (self.current_frame + 1) % len(self.run_lft_list)
+                self.image = self.run_lft_list[self.current_frame]
+        else:
+            self.current_frame = 0
+            dx = 0
+            if self.right:
+                self.image = self.stand_rt
+            elif self.left:
+                self.image = self.stand_lft
+
+        # jumping logic
+        if keys[pg.K_SPACE] and not self.jumping:
+            dy = -15
+            self.jumping = True
+        if not keys[pg.K_SPACE]:
+            self.jumping = False
+
+        # add gravity
+        self.velo_y += 1
+        if self.velo_y > 10:
+            self.velo_y = 10
+        dy += self.velo_y
+
+        # check for collision
+        for tile in self.tiles:
+            if tile[1].colliderect(self.rect.x+dx, self.rect.y,
+                                   self.rect.width, self.rect.height):
+                dx = 0
+            if tile[1].colliderect(self.rect.x, self.rect.y+dy,
+                                   self.rect.width, self.rect.height):
+                if self.velo_y < 0:
+                    dy = tile[1].bottom - self.rect.top
+                    self.velo_y = 0
+                elif self.velo_y > 0:
+                    dy = tile[1].top - self.rect.bottom
+                    self.velo_y = 0
+
+        # update position
+        self.rect.x += dx
+        self.rect.y += dy
+
+        # draw to screen
+        display.blit(self.image, self.rect)
 
     def load_images(self):
-        x_margin = 24
-        y_margin = 315
-        x_pad = 1
-        y_pad = 0
-        width = 50
-        height = 50
-        hero = SpriteSheet("images/OpenGunnerHeroVer2.png")
-        run_rt_list = hero.load_grid_images(1, 8, x_margin, x_pad, y_margin, y_pad, width, height, -1)
-        for image in run_rt_list:
-            pg.transform.scale(image, (TILE_SIZE, TILE_SIZE))
-        run_lft_list = [pg.transform.flip(player, True, False) for player in self.run_rt_list]
-
-        return run_rt_list, run_lft_list
+        skeletons = SpriteSheet("images/skeleton.png")
+        self.stand_rt = skeletons.image_at((15, 718, 33, 43), -1)
+        self.stand_rt = pg.transform.scale(self.stand_rt, (2*self.tile_size, 2*self.tile_size))
+        self.stand_lft = pg.transform.flip(self.stand_rt, True, False)
+        skel1 = skeletons.image_at((80, 718, 33, 47), -1)
+        self.run_rt_list.append(skel1)
+        skel2 = skeletons.image_at((143, 718, 33, 47), -1)
+        self.run_rt_list.append(skel2)
+        skel3 = skeletons.image_at((207, 718, 33, 47), -1)
+        self.run_rt_list.append(skel3)
+        skel4 = skeletons.image_at((270, 718, 33, 47), -1)
+        self.run_rt_list.append(skel4)
+        skel5 = skeletons.image_at((333, 718, 33, 47), -1)
+        self.run_rt_list.append(skel5)
+        skel6 = skeletons.image_at((398, 718, 33, 47), -1)
+        self.run_rt_list.append(skel6)
+        skel7 = skeletons.image_at((462, 718, 33, 47), -1)
+        self.run_rt_list.append(skel7)
+        skel8 = skeletons.image_at((527, 718, 33, 47), -1)
+        self.run_rt_list.append(skel8)
+        self.run_rt_list = [pg.transform.scale(image, (2*self.tile_size, 2*self.tile_size)) for image in self.run_rt_list]
+        self.run_lft_list = [pg.transform.flip(player, True, False) for player in self.run_rt_list]
 
 
 class Walls:
@@ -203,3 +288,6 @@ class Layout:
     def draw(self, display):
         for tile in self.tile_list:
             display.blit(tile[0], tile[1])
+
+    def get_layout(self):
+        return self.tile_list
