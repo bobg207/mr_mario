@@ -2,34 +2,160 @@ import pygame as pg
 from settings import *
 import sprites
 
-
 pg.init()
-
 pg.display.set_caption("New Game")
+game_layout = sprites.Layout(LAYOUT, TILE_SIZE)
+layout_list = game_layout.get_layout()
+player_grp = pg.sprite.Group()
+player = sprites.Player(100, DISPLAY_HEIGHT - 3 * TILE_SIZE, TILE_SIZE, layout_list)
+player_grp.add(player)
 
-# bg_image = pg.image.load("images/Full-background.png")
-# bg_image = pg.transform.scale(bg_image, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
-layout = sprites.Layout(LAYOUT, TILE_SIZE)
-layout_list = layout.get_layout()
-player = sprites.Player(100, DISPLAY_HEIGHT-3*TILE_SIZE, TILE_SIZE, layout_list)
+def game_start():
+    screen = pg.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
+    clock = pg.time.Clock()
 
-clock = pg.time.Clock()
+    start_text1 = 'Press Enter to start playing'
+    start_text2 = 'or ESC to quit'
+    font = pg.font.SysFont('Courier', 30, True, False)
+    text1 = font.render(start_text1, True, BLACK)
+    text2 = font.render(start_text2, True, BLACK)
 
-running = True
+    started = False
 
-while running:
-    for event in pg.event.get():
+    while not started:
+        for event in pg.event.get():
+            if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
+                quit()
 
-        if event.type == pg.QUIT:
-            running = False
-    SCREEN.fill(GREY)
+            if event.type == pg.KEYDOWN and event.key == pg.K_RETURN:
+                started = True
 
-    layout.draw(SCREEN)
-    player.update(SCREEN)
+        screen.fill(WHITE)
 
-    pg.display.flip()
+        screen.blit(text1, [100, 100])
+        screen.blit(text2, [200, 200])
 
-    clock.tick(FPS)
+        pg.display.flip()
+
+        clock.tick(FPS)
+
+
+def game_over(score):
+    pg.font.init()
+    go_screen = pg.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
+    clock = pg.time.Clock()
+
+    start_text1 = f'Your final score is: {score}'
+    start_text2 = 'Click on a button to proceed.'
+    restart_text = 'Restart'
+    quit_text = 'Quit'
+
+    font = pg.font.SysFont('Courier', 30, True, False)
+    text1 = font.render(start_text1, True, BLACK)
+    text2 = font.render(start_text2, True, BLACK)
+    text3 = font.render(restart_text, True, BLACK)
+    text4 = font.render(quit_text, True, BLACK)
+
+    started = False
+
+    while not started:
+        for event in pg.event.get():
+            if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
+                quit()
+
+        click = pg.mouse.get_pressed()
+        mouse_pos = pg.mouse.get_pos()
+        if click[0] is True and 200 <= mouse_pos[0] <= 350 and 400 <= mouse_pos[1] <= 450:
+            started = True
+
+        if click[0] is True and 400 <= mouse_pos[0] <= 550 and 400 <= mouse_pos[1] <= 450:
+            quit()
+
+        go_screen.fill(WHITE)
+
+        pg.draw.rect(go_screen, GREEN, (200, 400, 150, 50))
+        pg.draw.rect(go_screen, RED, (400, 400, 150, 50))
+
+        go_screen.blit(text1, [150, 100])
+        go_screen.blit(text2, [100, 200])
+        go_screen.blit(text3, [200, 400])
+        go_screen.blit(text4, [420, 400])
+
+        pg.display.flip()
+
+        clock.tick(FPS)
+
+    return True
+
+
+def reset_level(new_level):
+    global player, player_grp, game_layout
+    game_layout.platform_grp.empty()
+    player_grp.empty()
+    game_layout.create_layout(new_level)
+    layout_list = game_layout.get_layout()
+    player_grp = pg.sprite.Group()
+    player = sprites.Player(100, DISPLAY_HEIGHT - 3 * TILE_SIZE, TILE_SIZE, layout_list)
+    player_grp.add(player)
+
+    return layout_list
+
+
+def game_play():
+    global player, player_grp, game_layout
+    level = 1
+    max_level = 2
+    # bg_image = pg.image.load("images/Full-background.png")
+    # bg_image = pg.transform.scale(bg_image, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
+
+    layout_lis = reset_level(level)
+    platforms = game_layout.get_sprite_groups()
+
+    screen = pg.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
+    clock = pg.time.Clock()
+
+    running = True
+
+    while running:
+
+        if not player_grp:
+            player = sprites.Player(100, DISPLAY_HEIGHT - 3 * TILE_SIZE, TILE_SIZE, layout_list)
+            player_grp.add(player)
+
+        for event in pg.event.get():
+
+            if event.type == pg.QUIT:
+                running = False
+
+        for tile in layout_lis:
+            if tile[1].colliderect(player.rect.x + 3, player.rect.y,
+                                   player.rect.width, player.rect.height) and len(tile) == 3:
+                level += 1
+
+                if level <= max_level:
+                    layout_lis = reset_level(level)
+
+                else:
+                    running = False
+
+        screen.fill(GREY)
+
+        game_layout.draw(screen)
+        player.update(screen)
+        platforms.update(screen)
+
+        pg.display.flip()
+
+        clock.tick(FPS)
+
+    pg.quit()
+
+
+playing = True
+game_start()
+while playing:
+    game_play()
+    playing = game_over(5)
 
 pg.quit()
