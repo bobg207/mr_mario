@@ -306,7 +306,6 @@ class Layout:
                     self.platform_grp.add(vert_plat)
                     tile = (self.platform, vert_plat.rect)
                     self.tile_list.append(tile)
-                    print(counter_h, speed_h)
                     counter_h += 1
                 elif col == "5":
                     img_rect = self.doors[0].get_rect()

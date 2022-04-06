@@ -2,6 +2,7 @@ import pygame as pg
 from settings import *
 import sprites
 
+# initialize all game elements
 pg.init()
 pg.display.set_caption("New Game")
 game_layout = sprites.Layout(LAYOUT, TILE_SIZE)
@@ -90,9 +91,14 @@ def game_over(score):
 
 
 def reset_level(new_level):
-    global player, player_grp, game_layout
+    # need vars too be global so changes can be sent/received
+    global player, player_grp, game_layout, layout_list
+
+    # empty any sprite groups, tile list is emptied in "create_layout" method below
     game_layout.platform_grp.empty()
     player_grp.empty()
+
+    # create new level
     game_layout.create_layout(new_level)
     layout_list = game_layout.get_layout()
     player_grp = pg.sprite.Group()
@@ -103,12 +109,13 @@ def reset_level(new_level):
 
 
 def game_play():
+    # need vars too be global so changes can be sent/received
     global player, player_grp, game_layout
+
     level = 1
     max_level = 2
-    # bg_image = pg.image.load("images/Full-background.png")
-    # bg_image = pg.transform.scale(bg_image, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
+    # use reset function to load the initial level
     layout_lis = reset_level(level)
     platforms = game_layout.get_sprite_groups()
 
@@ -119,23 +126,23 @@ def game_play():
 
     while running:
 
-        if not player_grp:
-            player = sprites.Player(100, DISPLAY_HEIGHT - 3 * TILE_SIZE, TILE_SIZE, layout_list)
-            player_grp.add(player)
-
         for event in pg.event.get():
-
             if event.type == pg.QUIT:
-                running = False
+                quit()
 
+        # check for collision with "Exit", the tile has length = 3
         for tile in layout_lis:
             if tile[1].colliderect(player.rect.x + 3, player.rect.y,
                                    player.rect.width, player.rect.height) and len(tile) == 3:
                 level += 1
 
+                # make sure there are enough levels to go to
                 if level <= max_level:
+
+                    # call reset function for next level AND get returned layout list
                     layout_lis = reset_level(level)
 
+                # if no more levels end the "game_play" and go to "game_over"
                 else:
                     running = False
 
@@ -156,6 +163,6 @@ playing = True
 game_start()
 while playing:
     game_play()
-    playing = game_over(5)
+    playing = game_over(5)  # not keeping score yet, so score is hardcoded
 
 pg.quit()
