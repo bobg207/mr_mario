@@ -1,5 +1,5 @@
 In "Settings"
-    1. LAYOUT is a list of lists, each inner list is a levels layout
+    1. LAYOUT is a list of lists, each inner list is a level's layout
 
 In "Sprites" -> Layout class
     1. in __init__ image vars, tile list, group for platform sprites
