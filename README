@@ -1,0 +1,32 @@
+In "Settings"
+    1. LAYOUT is a list of lists, each inner list is a levels layout
+
+In "Sprites" -> Layout class
+    1. in __init__ image vars, tile list, group for platform sprites
+
+    2. created "create_layout" method
+        a. empty tile list
+        b. create layout base on level param, minus one to convert to index of list
+        c. added a value to the tuple for the exit, to use as the exit identifier
+
+In "Main"
+    1. initialize all critical game objects (pygame, layout and player)
+
+    2. "reset_level(level)" function to load each level
+        a. global vars to accept/change
+        b. empty any sprite groups
+        c. create new layout and player
+        d. get/return new layout list
+
+    3. "game_play()"
+        a. global vars to accept/change
+        b. level and max_level vars
+        c. collision with tiles of length 3, which is an exit
+            i.  increment the level
+            ii. check if level is less than the max number of levels
+                -> if True: call "reset_level(level)" AND accept returned list
+                -> else: end the game loop and "game_play()"
+
+    4. code to run the game_start(), game_play(), and game_over(score) functions,
+        not keeping score so score value is hardcoded as 5
+

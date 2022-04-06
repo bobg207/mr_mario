@@ -4,6 +4,7 @@ import sprites
 
 # initialize all game elements
 pg.init()
+screen = pg.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
 pg.display.set_caption("New Game")
 game_layout = sprites.Layout(LAYOUT, TILE_SIZE)
 layout_list = game_layout.get_layout()
@@ -110,7 +111,7 @@ def reset_level(new_level):
 
 def game_play():
     # need vars too be global so changes can be sent/received
-    global player, player_grp, game_layout
+    global player, player_grp, game_layout, screen
 
     level = 1
     max_level = 2
@@ -118,8 +119,8 @@ def game_play():
     # use reset function to load the initial level
     layout_lis = reset_level(level)
     platforms = game_layout.get_sprite_groups()
-
     screen = pg.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
+
     clock = pg.time.Clock()
 
     running = True

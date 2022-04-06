@@ -121,7 +121,7 @@ class Player(pg.sprite.Sprite):
             now = pg.time.get_ticks()
             if now - self.last >= self.image_delay:
                 self.last = now
-                self.current_frame = (self.current_frame+1) % len(self.run_rt_list)
+                self.current_frame = (self.current_frame + 1) % len(self.run_rt_list)
                 self.image = self.run_rt_list[self.current_frame]
         if keys[pg.K_LEFT]:
             self.left = True
@@ -156,11 +156,11 @@ class Player(pg.sprite.Sprite):
 
         # check for collision
         for tile in self.tiles:
-            if tile[1].colliderect(self.rect.x+dx, self.rect.y,
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y,
                                    self.rect.width, self.rect.height):
                 dx = 0
 
-            if tile[1].colliderect(self.rect.x, self.rect.y+dy,
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy,
                                    self.rect.width, self.rect.height):
                 # jumping and collide with bottom of platform
                 if self.velo_y < 0:
@@ -188,7 +188,7 @@ class Player(pg.sprite.Sprite):
             self.kill()
 
     def load_images(self):
-        player_size = 2*self.tile_size
+        player_size = 2 * self.tile_size
         skeletons = SpriteSheet("images/skeleton.png")
         self.stand_rt = skeletons.image_at((22, 719, 33, 44), -1)
         self.stand_rt = pg.transform.scale(self.stand_rt, (player_size, player_size))
@@ -241,9 +241,9 @@ class Platform(pg.sprite.Sprite):
             self.dy = 0
 
     def update(self, display):
-        if self.y_loc >= self.max_move or self.y_loc <= -1*self.max_move:
+        if self.y_loc >= self.max_move or self.y_loc <= -1 * self.max_move:
             self.dy *= -1
-        if self.x_loc >= self.max_move or self.x_loc <= -1*self.max_move:
+        if self.x_loc >= self.max_move or self.x_loc <= -1 * self.max_move:
             self.dx *= -1
 
         self.x_loc += self.dx
@@ -266,17 +266,17 @@ class Layout:
         self.yellow_brick = None
         self.brown_box = None
         self.spikes = None
+        self.key = None
         self.doors = []
         self.get_images()
         self.tile_list = []
         self.platform_grp = pg.sprite.Group()
 
-
     def create_layout(self, level):
         counter_v = 0
         counter_h = 0
         self.tile_list = []
-        level_layout = self.layout[level-1]
+        level_layout = self.layout[level - 1]
         for i, row in enumerate(level_layout):
             for j, col in enumerate(row):
                 x_val = j * self.tile_size
